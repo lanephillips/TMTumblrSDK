@@ -7,6 +7,7 @@
 //
 
 @import Foundation;
+@class UIWebView;
 
 typedef void (^TMAuthenticationCallback)(NSString *, NSString *, NSError *);
 
@@ -35,6 +36,19 @@ typedef void (^TMAuthenticationCallback)(NSString *, NSString *, NSError *);
  */
 - (void)authenticate:(NSString *)URLScheme callback:(TMAuthenticationCallback)callback;
 
+#endif
+
+/**
+ Authenticate via three-legged OAuth.
+ 
+ Your `TMTumblrAuthenticator` instance's `handleOpenURL:` method must also be called from your `UIApplicationDelegate`'s
+ `application:openURL:sourceApplication:annotation:` method in order to receive the tokens.
+ 
+ @param URLScheme a URL scheme that your application can handle requests to.
+ @param webView the UIWebView that will load the authentication request.
+ */
+- (void)authenticate:(NSString *)URLScheme webView:(UIWebView*)webView callback:(TMAuthenticationCallback)callback;
+
 /**
  Authenticate via three-legged OAuth. This should be called from your `UIApplicationDelegate`'s
  `application:openURL:sourceApplication:annotation:` method in order to receive the tokens.
@@ -42,8 +56,6 @@ typedef void (^TMAuthenticationCallback)(NSString *, NSString *, NSError *);
  This method is the last part of the authentication flow started by calling `authenticate:callback:`
  */
 - (BOOL)handleOpenURL:(NSURL *)url;
-
-#endif
 
 /**
  Authenticate via xAuth.

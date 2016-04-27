@@ -50,11 +50,22 @@ NSString *fullBlogName(NSString *blogName);
                                                 }];
 }
 
+#endif
+
+- (void)authenticate:(NSString *)URLScheme webView:(UIWebView *)webView callback:(void (^)(NSError *))callback {
+    [[TMTumblrAuthenticator sharedInstance] authenticate:URLScheme
+                                                 webView:webView
+                                                callback:^(NSString *token, NSString *secret, NSError *error) {
+                                                    self.OAuthToken = token;
+                                                    self.OAuthTokenSecret = secret;
+                                                    
+                                                    callback(error);
+                                                }];
+}
+
 - (BOOL)handleOpenURL:(NSURL *)url {
     return [[TMTumblrAuthenticator sharedInstance] handleOpenURL:url];
 }
-
-#endif
 
 - (void)xAuth:(NSString *)emailAddress password:(NSString *)password callback:(void(^)(NSError *))callback {
     return [[TMTumblrAuthenticator sharedInstance] xAuth:emailAddress password:password

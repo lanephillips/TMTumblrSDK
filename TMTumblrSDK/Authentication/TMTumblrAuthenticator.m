@@ -45,6 +45,12 @@ NSDictionary *formEncodedDataToDictionary(NSData *data);
 #ifdef __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
 
 - (void)authenticate:(NSString *)URLScheme callback:(TMAuthenticationCallback)callback {
+    [self authenticate:URLScheme webView:nil callback:callback];
+}
+
+#endif
+
+- (void)authenticate:(NSString *)URLScheme webView:(UIWebView *)webView callback:(TMAuthenticationCallback)callback {
     // Clear token secret in case authentication was previously started but not finished
     self.threeLeggedOAuthTokenSecret = nil;
     
@@ -75,8 +81,16 @@ NSDictionary *formEncodedDataToDictionary(NSData *data);
             NSURL *authURL = [NSURL URLWithString:
                               [NSString stringWithFormat:@"https://www.tumblr.com/oauth/authorize?oauth_token=%@",
                                responseParameters[@"oauth_token"]]];
-            
-            [[NSWorkspace sharedWorkspace] openURL:authURL];
+      
+            if (webView) {
+                [webView loadRequest:[NSURLRequest requestWithURL:authURL]];
+            } else {
+#ifdef __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
+                [[NSWorkspace sharedWorkspace] openURL:authURL];
+#else
+                NSAssert(NO, @"A UIWebView instance is required to run the authentication flow on iOS.");
+#endif
+            }
             
         } else {
             if (callback) {
@@ -148,8 +162,6 @@ NSDictionary *formEncodedDataToDictionary(NSData *data);
     
     return YES;
 }
-
-#endif
 
 - (void)xAuth:(NSString *)emailAddress password:(NSString *)password callback:(TMAuthenticationCallback)callback {
     NSDictionary *requestParameters = @{
